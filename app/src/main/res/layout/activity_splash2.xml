@@ -4,13 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary"
+    android:background="@color/colorbg"
     android:gravity="center"
     tools:context=".Splash">
 
     <FrameLayout
-        android:layout_width="80dp"
-        android:layout_height="100dp"
+        android:layout_width="160dp"
+        android:layout_height="200dp"
         android:background="@drawable/splash"
         android:gravity="center"
         tools:layout_editor_absoluteX="152dp"
