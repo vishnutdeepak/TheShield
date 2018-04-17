@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "652431386129",
+    "firebase_url": "https://theshield-884b1.firebaseio.com",
+    "project_id": "theshield-884b1",
+    "storage_bucket": "theshield-884b1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:652431386129:android:0a3f1d60643400bd",
+        "android_client_info": {
+          "package_name": "com.example.vishnu.theshield"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "652431386129-13is0qrdn908k9rki2s9v02voe9suclc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.vishnu.theshield",
+            "certificate_hash": "3553bb3ca8665320204274504b41721a2fda66c8"
+          }
+        },
+        {
+          "client_id": "652431386129-n2mpinsekekeqto1ha4f2pfp0ogac0c4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCIe5dH45mU2kNfLfgCjplCOhfMShodzVU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "652431386129-n2mpinsekekeqto1ha4f2pfp0ogac0c4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
