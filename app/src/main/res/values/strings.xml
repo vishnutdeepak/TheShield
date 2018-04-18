@@ -18,6 +18,22 @@
         completions."
     </string>
 
+
+        <string-array name="time_interval_array">
+            <item>30 seconds</item>
+            <item>1 minute</item>
+            <item>5 minutes</item>
+            <item>10 minutes</item>
+            <item>30 minutes</item>
+
+        </string-array>
+    <string-array name="safety_window_array">
+        <item>10 seconds</item>
+        <item>2 minutes</item>
+        <item>5 minutes</item>
+
+
+    </string-array>
     <string name="title_activity_splash">Splash</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>

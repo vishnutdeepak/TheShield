@@ -20,7 +20,7 @@
         android:layout_marginTop="47dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
-        android:text="SOS"
+        android:text="ONE TAP LIST"
         android:textAlignment="center"
         android:textColor="@color/colorPrimaryDark"
         android:textSize="20dp"
@@ -45,14 +45,14 @@
         android:onClick="callEmergency"
         android:text="Call emergency" />
 
-    <Button
+    <ImageButton
         android:id="@+id/location"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
+        android:layout_width="76dp"
+        android:src="@android:drawable/loc"
+        android:layout_height="57dp"
         android:layout_marginTop="133dp"
         android:onClick="sendLocationViaWhatsapp"
         android:text="send location" />
+
 
 </RelativeLayout>

@@ -37,9 +37,15 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.ImageButton;
+import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.Toast;
 
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -53,9 +59,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     GPSTracker gpsTracker;
     LocationManager locationManager;
     private static final int REQUEST_READ_CONTACTS = 0;
-    Button location,call,alert;
-    private Timer myTimer;
+    ImageButton location,call,alert;
+    public Timer myTimer;
     SharedPreferences sharedPref;
+    Spinner spinner,spinner2;
     MediaPlayer mp;
     Uri alertTone;
     public AlertDialog.Builder safetyCheck;
@@ -66,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     String whatsAppmessage;
     Context ct;
     Activity activity;
+    Switch gswitch;
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +81,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
 
         setContentView(R.layout.activity_main);
+        Boolean dia_disp = Objects.requireNonNull(getIntent().getExtras()).getBoolean("disp_dia",Boolean.FALSE);
+if(dia_disp)
+    this.onBackPressed();
+        spinner = findViewById(R.id.spinner);
+        spinner2 = findViewById(R.id.spinner2);
+
+
+
+        ct= this.getApplicationContext();
 ct= this.getApplicationContext();
 activity = this;
         if (ContextCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -300,17 +317,37 @@ public void callalert(View view)
         }
 
     }
-
+long period;
     public void setTimer(View v){
+spinner = findViewById(R.id.spinner);
+        String text = spinner.getSelectedItem().toString();
+        switch (text) {
+            case "30 seconds":
+                period = 30000;
+                break;
+            case "1 minute":
+                period = 60000;
+                break;
+            case "5 minutes":
+                period = 60000 * 5;
+                break;
+            case "10 minutes":
+                period = 600000;
+                break;
+            case "30 minutes":
+                period = 60000 * 30;
+                break;
+        }
 
         myTimer = new Timer();
+
         myTimer.schedule(new TimerTask() {
             @Override
             public void run() {
                 TimerMethod();
             }
 
-        }, 0, 30000);
+        }, 0, period);
     }
 
     private void TimerMethod()
@@ -325,6 +362,9 @@ public void callalert(View view)
 
             //Do something to the UI thread here
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            intent.putExtra("disp_dia",Boolean.TRUE);
+       //    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP| Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 // use System.currentTimeMillis() to have a unique ID for the pending intent
             PendingIntent pIntent = PendingIntent.getActivity(getApplicationContext(), (int) System.currentTimeMillis(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
             if(n==null) {
@@ -366,7 +406,7 @@ public void callalert(View view)
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert);
         dialog = safetyCheck.create();
-        if(!((Activity) activity).isFinishing())
+        if(!( activity).isFinishing())
         {
             dialog.show();
         }
@@ -374,10 +414,25 @@ public void callalert(View view)
 
     }
 
-
+long safety;
     public void setSafetyTimer(){
 
+        spinner2 = findViewById(R.id.spinner2);
+        String text = spinner2.getSelectedItem().toString();
+        switch (text) {
+            case "10 seconds":
+                safety= 10000;
+                break;
+            case "2 minute":
+               safety= 60000*2;
+                break;
+            case "5 minutes":
+                safety = 60000*5;
+                break;
+
+        }
         new Timer().schedule(new TimerTask(){
+
             public void run() {
                 if(dialog.isShowing())
                     activity.runOnUiThread(new Runnable() {
@@ -393,7 +448,7 @@ public void callalert(View view)
                     });
 
                 }
-        }, 10000);
+        }, safety);
 //        myTimer = new Timer();
 //        myTimer.schedule(new TimerTask() {
 //            @Override
