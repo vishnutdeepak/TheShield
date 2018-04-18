@@ -73,6 +73,13 @@
                 android:text="Sign in"
                 android:textStyle="bold" />
 
+            <Button
+                android:id="@+id/reg"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:onClick="gotoreg"
+                android:text="REgiser New" />
+
         </LinearLayout>
     </ScrollView>
 </LinearLayout>
