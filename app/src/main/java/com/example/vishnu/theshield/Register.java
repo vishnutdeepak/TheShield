@@ -1,6 +1,9 @@
 package com.example.vishnu.theshield;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Handler;
+import android.support.annotation.IntegerRes;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -39,6 +42,8 @@ public class Register extends AppCompatActivity {
     DatabaseReference myRef;
     Integer count;
     Profile user;
+    DatabaseReference writeRef;
+    private Handler mHandler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +59,8 @@ public class Register extends AppCompatActivity {
         cnfpwd = findViewById(R.id.conpwd);
         submit = findViewById(R.id.submitbtn);
         ct = this.getApplicationContext();
-getcount();
+        DatabaseReference writeRef;
+        getcount();
 
 // Read from the database
 
@@ -87,7 +93,7 @@ public void getcount()
 
             count = Integer.parseInt(s);
 
-
+            myRef.removeEventListener(this);
         }
 
         @Override
@@ -97,56 +103,82 @@ public void getcount()
         }
     });
 }
+Integer i;
+    Boolean flag;
 
-public void setcount()
+public void checkavailable(){
+flag=Boolean.TRUE;
+    if(count ==0)
+    {
+        return;
+    }
+    final DatabaseReference checkRef = database.getReference("User_Profiles");
+
+
+
+
+
+        checkRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // This method is called once with the initial value and again
+                // whenever data at this location is updated.
+                for(i=1;i<=count;i++) {
+                String s = dataSnapshot.child("User_" + i).child("email").getValue(String.class);
+
+                if (user.email.equals(s)) {
+
+                flag=Boolean.FALSE;
+                    Toast tv = Toast.makeText(ct, "User already exists with registered email!", Toast.LENGTH_SHORT);
+                    tv.show();
+                    break;
+                }
+                //                hm = dataSnapshot.getValue(HashMap.class);
+            }
+            checkRef.removeEventListener(this);
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
+}
+        public void setcount()
 {
     DatabaseReference ctRef = database.getReference("user_count");
     ctRef.setValue(count.toString());
 }
     public void sub_details(View view) {
         // Write a message to the database
+       writeRef = database.getReference("User_Profiles");
         try {
 
             user = new Profile(name.getText().toString(), dob.getText().toString(),
                     phonenum.getText().toString(), emailid.getText().toString(), pwd.getText().toString());
-            DatabaseReference writeRef = database.getReference("User_Profiles");
+
+
+
             if(user.isEmptyall()){
                 Toast toast = Toast.makeText(ct, "Fill all fields", Toast.LENGTH_SHORT);
                 toast.show();
 
             }
             else if(pwd.getText().toString().equals(cnfpwd.getText().toString()))
-            {
-                count = count + 1;
-                user.Password=pwd.getText().toString();
-                writeRef.child("User_" + count).setValue(user);
-                setcount();
-                Toast toast = Toast.makeText(ct, "Successfully Registered", Toast.LENGTH_SHORT);
-                toast.show();
+            {flag=Boolean.TRUE;
+                checkavailable();
+                mHandler.postDelayed(mUpdateTimeTask, 1000);
+
             }
             else{
                 Toast toast = Toast.makeText(ct, "Passwords do not match", Toast.LENGTH_SHORT);
                 toast.show();
             }
 
-            writeRef.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    // This method is called once with the initial value and again
-                    // whenever data at this location is updated.
-                    String p = dataSnapshot.child("User_1").child("Password").getValue(String.class);
 
-                    // hm = dataSnapshot.getValue(HashMap.class);
-
-
-                }
-
-                @Override
-                public void onCancelled(DatabaseError error) {
-                    // Failed to read value
-                    System.out.println("The read failed: " + error.getCode());
-                }
-            });
 
         }
         catch(Exception e)
@@ -164,5 +196,28 @@ public void setcount()
 // Write a message to the database
 
     }
+
+
+
+
+    private Runnable mUpdateTimeTask = new Runnable() {
+
+        public void run() {
+            writeRef = database.getReference("User_Profiles");
+            if(flag) {
+                count = count + 1;
+                user.Password = pwd.getText().toString();
+                writeRef.child("User_" + count).setValue(user);
+                setcount();
+                Toast toast = Toast.makeText(ct, "Successfully Registered", Toast.LENGTH_SHORT);
+                toast.show();
+                Intent intent = new Intent (ct,LoginActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP| Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+
+            }
+        }
+
+    };
 }
 
