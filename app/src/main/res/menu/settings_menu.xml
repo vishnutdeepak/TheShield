@@ -10,9 +10,8 @@
         android2:title="Change emergency contact"
         android:showAsAction="never"
         />
-    <item android2:id="@+id/profile"
-        android2:title="Edit profile"
-        android:showAsAction="never"/>
+
+
     <item android2:id="@+id/logout"
         android2:title="Logout"
         android:showAsAction="never"/>

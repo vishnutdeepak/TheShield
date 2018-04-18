@@ -47,9 +47,9 @@ public class MyAdapter extends FragmentPagerAdapter {
             case 0 :
                 return "Guardian";
             case 1 :
-                return "Options";
+                return "Defender";
             case 2 :
-                return "BUdDy";
+                return "Saviour";
         }
         return null;
     }

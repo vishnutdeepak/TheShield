@@ -41,6 +41,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.Toast;
@@ -50,8 +51,18 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import android.Manifest; // correct
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import static android.Manifest.permission.READ_CONTACTS;
 public class MainActivity extends AppCompatActivity implements LocationListener {
+
+    ListView listView;
+
     ViewPager viewPager;
     TabLayout tabLayout;
     double latitude;
@@ -61,8 +72,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     private static final int REQUEST_READ_CONTACTS = 0;
     ImageButton location,call,alert;
     public Timer myTimer;
+    public Timer locupdate;
     SharedPreferences sharedPref;
     Spinner spinner,spinner2;
+    FirebaseDatabase database;
+    DatabaseReference myRef;
     MediaPlayer mp;
     Uri alertTone;
     Uri currentRintoneUri;
@@ -75,20 +89,41 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     Context ct;
     Activity activity;
     Switch gswitch;
+    String name;
+    Integer cusrid;
+
     @RequiresApi(api = Build.VERSION_CODES.M)
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        name = Objects.requireNonNull(getIntent().getExtras()).getString("Name","");
+
+        setTitle(name+ "'s Shield" );
+
+        locupdate = new Timer();
+
+        locupdate.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                locationmethod();
+
+            }
+
+        }, 0, 5000);
 
         setContentView(R.layout.activity_main);
+
         Boolean dia_disp = Objects.requireNonNull(getIntent().getExtras()).getBoolean("disp_dia",Boolean.FALSE);
-if(dia_disp)
+         cusrid = Objects.requireNonNull(getIntent().getExtras()).getInt("id",0);
+if(dia_disp) {
     this.onBackPressed();
+}
         spinner = findViewById(R.id.spinner);
         spinner2 = findViewById(R.id.spinner2);
 
-
+        database = FirebaseDatabase.getInstance();
 
         ct= this.getApplicationContext();
 ct= this.getApplicationContext();
@@ -106,8 +141,10 @@ activity = this;
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS, Manifest.permission.SEND_SMS}, 101);
         }
 
+
         Toolbar toolbar =  findViewById(R.id.toolbar);
-        //  setSupportActionBar(toolbar);
+
+
         getLocation();
         viewPager = (ViewPager) findViewById(R.id.view_pager);
         tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -198,11 +235,12 @@ public void callalert(View view)
 
     @Override
     public void onProviderEnabled(String provider) {
-        Toast.makeText(MainActivity.this, "Please Enable GPS and Internet", Toast.LENGTH_SHORT).show();
+
     }
 
     @Override
     public void onProviderDisabled(String provider) {
+        Toast.makeText(MainActivity.this, "Please Enable GPS and Internet", Toast.LENGTH_SHORT).show();
 
     }
     @Override
@@ -270,11 +308,11 @@ public void callalert(View view)
                 i.setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE);
                 startActivityForResult(i, 1);
                 return true;
-            case R.id.profile:
-                Toast.makeText(MainActivity.this,"Opens new activity",Toast.LENGTH_LONG).show();
-                return true;
+
             case R.id.logout:
-                Toast.makeText(MainActivity.this,"Logs out",Toast.LENGTH_LONG).show();
+                this.onBackPressed();
+                locupdate.cancel();
+                Toast.makeText(MainActivity.this,"Logging out",Toast.LENGTH_LONG).show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -319,6 +357,21 @@ public void callalert(View view)
         }
         return app_installed;
     }
+    private void locationmethod()
+    {
+
+        this.runOnUiThread(addloc);
+    }
+    private Runnable addloc = new Runnable() {
+        public void run() {
+            getLocation();
+            myRef = database.getReference("User_Profiles");
+            myRef.child("User_"+cusrid).child("latitude").setValue(latitude);
+            myRef.child("User_"+cusrid).child("longitude").setValue(longitude);
+
+        }
+        };
+
     public void callEmergency(View view){
         sharedPref = getSharedPreferences("the-shield",getApplicationContext().MODE_PRIVATE);
         String phone = sharedPref.getString("emergency","");
@@ -375,6 +428,7 @@ spinner = findViewById(R.id.spinner);
 
             //Do something to the UI thread here
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+
             intent.putExtra("disp_dia",Boolean.TRUE);
        //    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP| Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);

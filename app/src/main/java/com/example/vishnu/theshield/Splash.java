@@ -21,7 +21,7 @@ Context ct;
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         ActionBar ab = getSupportActionBar();
-        ab.hide();
+     ab.hide();
         setContentView(R.layout.activity_splash2);
         mHandler.postDelayed(mUpdateTimeTask, 1500);
 ct = this.getApplicationContext();

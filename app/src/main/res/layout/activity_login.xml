@@ -8,7 +8,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:background="#5ed66e"
+    android:background="#ffffff"
     tools:context="com.example.vishnu.theshield.LoginActivity">
 
     <!-- Login progress -->
@@ -61,6 +61,12 @@
                     android:inputType="textPassword"
                     android:maxLines="1"
                     />
+                <ProgressBar
+                    android:layout_gravity="center"
+                    android:layout_width="wrap_content"
+                    android:visibility="gone"
+                    android:id="@+id/pb"
+                    android:layout_height="wrap_content" />
 
             </android.support.design.widget.TextInputLayout>
 
@@ -71,6 +77,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="Sign in"
+
                 android:textStyle="bold" />
 
             <Button
@@ -78,7 +85,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:onClick="gotoreg"
-                android:text="REgiser New" />
+                android:text="REgister New" />
 
         </LinearLayout>
     </ScrollView>

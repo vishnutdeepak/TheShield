@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -52,9 +53,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     DatabaseReference myRef;
     DatabaseReference checkRef;
     Context ct;
+    SharedPreferences sharedPref;
     Integer count;
     String email;
     String password;
+    SharedPreferences.Editor editor;
     /**
      * Id to identity READ_CONTACTS permission request.
      */
@@ -81,6 +84,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         database = FirebaseDatabase.getInstance();
+        sharedPref = getSharedPreferences("the-shield",this.MODE_PRIVATE);
+
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         // Set up the login form.
@@ -259,7 +265,12 @@ flag=Boolean.TRUE;
                         b.show();
                         flag=Boolean.FALSE;
                          Intent intent = new Intent(ct,MainActivity.class);
+
                          intent.putExtra("Name",n);
+                        editor = sharedPref.edit();
+                        editor.putString("Name", n);
+                        editor.apply();
+                        intent.putExtra("id",i);
                          startActivity(intent);
                     }
                     break;
