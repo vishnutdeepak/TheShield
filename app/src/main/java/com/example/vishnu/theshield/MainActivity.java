@@ -65,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     Spinner spinner,spinner2;
     MediaPlayer mp;
     Uri alertTone;
+    Uri currentRintoneUri;
     public AlertDialog.Builder safetyCheck;
     public AlertDialog dialog;
     Notification n=null;
@@ -138,28 +139,36 @@ activity = this;
 
 public void callalert(View view)
 {
-    if(mp!=null){
-        if(mp.isPlaying()){
-            mp.stop();
-            mp.release();
-            mp = null;
-        } else{
-            if(!sharedPref.getString("alertTone","").isEmpty())
-                alertTone = Uri.parse(sharedPref.getString("alertTone",""));
+    try {
+        if (mp != null) {
+            if (mp.isPlaying()) {
+                mp.stop();
+                mp.release();
+                mp = null;
+            } else {
+                if (!sharedPref.getString("alertTone", "").isEmpty())
+                    alertTone = Uri.parse(sharedPref.getString("alertTone", ""));
+                else
+                    alertTone = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+                mp = MediaPlayer.create(MainActivity.this, alertTone);
+                mp.start();
+            }
+        } else {
+            if (!sharedPref.getString("alertTone", "").isEmpty())
+                alertTone = Uri.parse(sharedPref.getString("alertTone", ""));
             else
                 alertTone = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
-            mp = MediaPlayer.create(MainActivity.this,alertTone);
+            mp = MediaPlayer.create(MainActivity.this, alertTone);
             mp.start();
         }
-    }else{
-        if(!sharedPref.getString("alertTone","").isEmpty())
-            alertTone = Uri.parse(sharedPref.getString("alertTone",""));
-        else
-            alertTone = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
-        mp = MediaPlayer.create(MainActivity.this,alertTone);
-        mp.start();
     }
-}
+    catch(Exception e)
+        {
+            Toast toast = Toast.makeText(this,"No Alert Tone selected",Toast.LENGTH_SHORT);
+            toast.show();
+        }
+    }
+
 
     void getLocation() {
         try {
@@ -220,11 +229,12 @@ public void callalert(View view)
             assert cursor != null;
             cursor.close();
         }
-        if (reqCode == 2 && resultCode == RESULT_OK) {
+        else if (reqCode == 2 && resultCode == RESULT_OK) {
 //            Ringtone defaultRingtone = RingtoneManager.getRingtone(this,
             //  Settings.System.DEFAULT_RINGTONE_URI);
             //Uri currentRintoneUri = RingtoneManager.getValidRingtoneUri(this);
-            Uri currentRintoneUri = RingtoneManager.getActualDefaultRingtoneUri(MainActivity.this, RingtoneManager.TYPE_RINGTONE);
+            currentRintoneUri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+          //currentRintoneUri = RingtoneManager.getActualDefaultRingtoneUri(MainActivity.this, RingtoneManager.TYPE_RINGTONE);
             sharedPref = getSharedPreferences("the-shield",this.MODE_PRIVATE);
             Toast.makeText(MainActivity.this,currentRintoneUri.toString(),Toast.LENGTH_LONG).show();
 
@@ -250,6 +260,9 @@ public void callalert(View view)
                 intent.putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true);
                 intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE,RingtoneManager.TYPE_ALL);
                 intent.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION);
+                intent.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, currentRintoneUri);
+                intent.putExtra(RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI, currentRintoneUri);
+
                 startActivityForResult(intent,2);
                 return true;
             case R.id.contact:

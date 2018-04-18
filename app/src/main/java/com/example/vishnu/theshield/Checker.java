@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -58,9 +59,22 @@ public class Checker extends Fragment {
       Switch gswitch = rootView.findViewById(R.id.gswitch);
         final MainActivity mainActivity ;
         mainActivity = (MainActivity) getActivity();
-      final Button setbtn = rootView.findViewById(R.id.set);
+      final ImageButton setbtn = rootView.findViewById(R.id.set);
         final TextView tv1 = rootView.findViewById(R.id.textView2);
         final TextView tv2 = rootView.findViewById(R.id.textView3);
+        if(!gswitch.isChecked())
+        {
+            spinner.setEnabled(false);
+            spinner.setClickable(false);
+            spinner2.setEnabled(false);
+            spinner2.setClickable(false);
+            setbtn.setClickable(false);
+            setbtn.setEnabled(false);
+            tv1.setEnabled(false);
+            tv2.setEnabled(false);
+            tv1.setClickable(false);
+            tv2.setClickable(false);
+        }
         gswitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked)
@@ -74,6 +88,7 @@ public class Checker extends Fragment {
                     tv1.setEnabled(true);
                     tv2.setEnabled(true);
                     tv1.setClickable(true);
+                    setbtn.setBackground(getActivity().getDrawable(R.drawable.guardian));
                     tv2.setClickable(true);
 
                 }
@@ -96,6 +111,7 @@ public class Checker extends Fragment {
                     tv1.setEnabled(false);
                     tv2.setEnabled(false);
                     tv1.setClickable(false);
+                    setbtn.setBackground(getActivity().getDrawable(R.drawable.guardian_off));
                     tv2.setClickable(false);
                 }
                 // do something, the isChecked will be
