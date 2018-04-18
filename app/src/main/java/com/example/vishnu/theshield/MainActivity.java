@@ -1,5 +1,6 @@
 package com.example.vishnu.theshield;
 
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -16,6 +17,9 @@ import android.media.MediaPlayer;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.provider.ContactsContract;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.TabLayout;
@@ -26,11 +30,13 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -55,21 +61,36 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     public AlertDialog.Builder safetyCheck;
     public AlertDialog dialog;
     Notification n=null;
+    Handler mHandler;
     NotificationManager notificationManager;
     String whatsAppmessage;
+    Context ct;
+    Activity activity;
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
         setContentView(R.layout.activity_main);
+ct= this.getApplicationContext();
+activity = this;
         if (ContextCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION}, 101);
         }
 
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        //  setSupportActionBar(toolbar);
+        if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE}, 101);
+        }
 
+        if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS, Manifest.permission.SEND_SMS}, 101);
+        }
+
+        Toolbar toolbar =  findViewById(R.id.toolbar);
+        //  setSupportActionBar(toolbar);
+        getLocation();
         viewPager = (ViewPager) findViewById(R.id.view_pager);
         tabLayout = (TabLayout) findViewById(R.id.tabs);
 
@@ -89,6 +110,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CALL_PHONE},101);
         }
         }
+        @Override
+    public void onPause(){
+        super.onPause();
+        /*    if (dialog != null) {
+                dialog.dismiss();
+                dialog = null;
+            }*/
+    }
+
 public void callalert(View view)
 {
     if(mp!=null){
@@ -312,6 +342,7 @@ public void callalert(View view)
             displayDialog();
             setSafetyTimer();
 
+
         }
     };
     public void displayDialog(){
@@ -335,14 +366,33 @@ public void callalert(View view)
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert);
         dialog = safetyCheck.create();
-        dialog.show();
+        if(!((Activity) activity).isFinishing())
+        {
+            dialog.show();
+        }
+
+
     }
+
+
     public void setSafetyTimer(){
 
         new Timer().schedule(new TimerTask(){
             public void run() {
                 if(dialog.isShowing())
-                    Toast.makeText(getApplicationContext(),"Will send SMS",Toast.LENGTH_SHORT).show();            }
+                    activity.runOnUiThread(new Runnable() {
+                        public void run() {
+                            getLocation();
+                            Toast.makeText(activity, "Sending SMS : This Shield user may be in danger. Last known location : "+"http://maps.google.com/maps?saddar=" + latitude +","+ longitude, Toast.LENGTH_SHORT).show();
+
+                            SmsManager smsManager = SmsManager.getDefault();
+
+                          //  smsManager.sendTextMessage("9940866269", null, "", null, null);
+
+                        }
+                    });
+
+                }
         }, 10000);
 //        myTimer = new Timer();
 //        myTimer.schedule(new TimerTask() {

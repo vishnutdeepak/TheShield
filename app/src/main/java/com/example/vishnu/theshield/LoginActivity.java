@@ -3,6 +3,7 @@ package com.example.vishnu.theshield;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
@@ -29,6 +30,13 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +48,13 @@ import static android.Manifest.permission.READ_CONTACTS;
  * A login screen that offers login via email/password.
  */
 public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
-
+    FirebaseDatabase database;
+    DatabaseReference myRef;
+    DatabaseReference checkRef;
+    Context ct;
+    Integer count;
+    String email;
+    String password;
     /**
      * Id to identity READ_CONTACTS permission request.
      */
@@ -66,9 +80,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        database = FirebaseDatabase.getInstance();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         // Set up the login form.
+        ct = this.getApplicationContext();
         mEmailView = (AutoCompleteTextView) findViewById(R.id.username);
         populateAutoComplete();
 
@@ -84,7 +100,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.login);
+        Button mEmailSignInButton = findViewById(R.id.login);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -156,46 +172,118 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
+        email = mEmailView.getText().toString();
+        email = email.replaceAll("\\s","");
+         password = mPasswordView.getText().toString();
+        password = password.replaceAll("\\s","");
 
-        boolean cancel = false;
-        View focusView = null;
 
         // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
-            cancel = true;
-        }
+      //showProgress(true);
 
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
-            mEmailView.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
-            cancel = true;
-        } else if (!isEmailValid(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
-            cancel = true;
-        }
+        checkcredentials();
 
-        if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
-            focusView.requestFocus();
-        } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
-            showProgress(true);
-            // mAuthTask = new UserLoginTask(email, password);
-            //mAuthTask.execute((Void) null);
 
-        }
-        Intent intent = new Intent(this,MainActivity.class);
-        startActivity(intent);
+
+
+
+
+
+
     }
 
+
+    public void getcount()
+    {
+        myRef = database.getReference("user_count");
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // This method is called once with the initial value and again
+                // whenever data at this location is updated.
+                String s = dataSnapshot.getValue(String.class);
+
+                // hm = dataSnapshot.getValue(HashMap.class);
+                try {
+                    if (s.equals("null")) {
+
+
+                    }
+                } catch (Exception e) {
+
+
+                    myRef.setValue("0");
+                    count = 0;
+                    s = "0";
+
+                }
+               //Toast toast = Toast.makeText(ct, s, Toast.LENGTH_SHORT);
+           //     toast.show();
+                count = Integer.parseInt(s);
+
+                myRef.removeEventListener(this);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                // Failed to read value
+                System.out.println("The read failed: " + error.getCode());
+            }
+        });
+    }
+    Integer i;
+    Boolean flag;
+public void checkcredentials(){
+        getcount();
+    checkRef = database.getReference("User_Profiles");
+flag=Boolean.TRUE;
+    checkRef.addValueEventListener(new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            // This method is called once with the initial value and again
+            // whenever data at this location is updated.
+            for(i=1;i<=count;i++) {
+                String s = dataSnapshot.child("User_" + i).child("email").getValue(String.class);
+                String r = dataSnapshot.child("User_" + i).child("Password").getValue(String.class);
+                String n = dataSnapshot.child("User_" + i).child("name").getValue(String.class);
+                if (email.equals(s)) {
+
+
+                    if(!password.equals(r))
+                    {
+                        Toast t = Toast.makeText(ct,"Incorrect Password",Toast.LENGTH_SHORT);
+                        t.show();
+                    }
+                    else{
+                        Toast b = Toast.makeText(ct,"Login Successful",Toast.LENGTH_SHORT);
+                        b.show();
+                        flag=Boolean.FALSE;
+                         Intent intent = new Intent(ct,MainActivity.class);
+                         intent.putExtra("Name",n);
+                         startActivity(intent);
+                    }
+                    break;
+                }
+                //                hm = dataSnapshot.getValue(HashMap.class);
+            }
+            if(flag==Boolean.TRUE)
+            {
+                Toast t = Toast.makeText(ct,"User not found",Toast.LENGTH_SHORT);
+                t.show();
+            }
+            checkRef.removeEventListener(this);
+
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+
+        }
+    });
+
+
+
+}
     private boolean isEmailValid(String email) {
         //TODO: Replace this with your own logic
         return email.contains("@");

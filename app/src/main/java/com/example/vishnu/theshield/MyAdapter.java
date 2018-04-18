@@ -45,7 +45,7 @@ public class MyAdapter extends FragmentPagerAdapter {
 
         switch (position){
             case 0 :
-                return "Checker";
+                return "Guardian";
             case 1 :
                 return "Options";
             case 2 :

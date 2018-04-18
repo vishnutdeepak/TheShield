@@ -74,8 +74,8 @@ public void getcount()
             // This method is called once with the initial value and again
             // whenever data at this location is updated.
             String s = dataSnapshot.getValue(String.class);
-            Toast toast = Toast.makeText(ct, s, Toast.LENGTH_SHORT);
-            toast.show();
+         //   Toast toast = Toast.makeText(ct, s, Toast.LENGTH_SHORT);
+    //        toast.show();
             // hm = dataSnapshot.getValue(HashMap.class);
             try {
                 if (s.equals("null")) {
@@ -153,6 +153,7 @@ flag=Boolean.TRUE;
     ctRef.setValue(count.toString());
 }
     public void sub_details(View view) {
+    getcount();
         // Write a message to the database
        writeRef = database.getReference("User_Profiles");
         try {
